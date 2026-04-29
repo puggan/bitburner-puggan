@@ -1,0 +1,24 @@
+{
+  "name": "bitburner-puggan",
+  "version": "1.0.0",
+  "description": "Puggan Bitburner scripts",
+  "main": "startup.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+ssh://git@github.com:puggan/bitburner-puggan.git"
+  },
+  "keywords": [
+    "Game",
+    "BitBurner",
+    "Typescript"
+  ],
+  "author": "Puggan Sundragon <puggan@sundragon.se>",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/puggan/bitburner-puggan/issues"
+  },
+  "homepage": "https://github.com/puggan/bitburner-puggan#readme"
+}
