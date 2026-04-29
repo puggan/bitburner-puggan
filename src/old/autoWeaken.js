@@ -1,0 +1,73 @@
+/**
+ * @param {NS} ns
+ **/
+export async function main(ns) {
+    // Config
+    const weakenScript = 'weakenOnce.js';
+ 
+    /**
+     * Relay script execution
+     * @param {string} script
+     * @param {number} freeRam
+     * @param {number} maxThreads
+     */
+    const relayScript = (script, relay, freeRam, target) => {
+        let memPerScript = ns.getScriptRam(script);
+        let threads = Math.floor(freeRam / memPerScript);
+        if (threads < 1) {
+            return 0;
+        }
+        ns.print(threads + 'x ' + script + ' ' + target + ' from ' + relay);
+        ns.exec(script, relay, threads, target);
+        return memPerScript * threads;
+    };
+
+    ns.disableLog('ALL');
+ 
+    // main loop
+    while(true) {
+        await ns.sleep(1000);
+        const moneyServers = ns.read("moneyServers.txt").split("\r\n");
+        let target = '';
+        let targetWeakenTime = Infinity;
+        for (const sreverName of moneyServers) {
+            const securityThresh = ns.getServerMinSecurityLevel(sreverName) + 5;
+            const weakenRequired = ns.getServerSecurityLevel(sreverName) > securityThresh;
+            if (weakenRequired) {
+                const weakenTime = ns.getWeakenTime(sreverName);
+                if (weakenTime < targetWeakenTime) {
+                    target = sreverName;
+                    targetWeakenTime = weakenTime;
+                }
+            }
+        }
+        if (!isFinite(targetWeakenTime)) {
+            for (const sreverName of moneyServers) {
+                const securityThresh = Math.ceil(ns.getServerMinSecurityLevel(sreverName));
+                const weakenRequired = ns.getServerSecurityLevel(sreverName) > securityThresh;
+                if (weakenRequired) {
+                    const weakenTime = ns.getWeakenTime(sreverName);
+                    if (weakenTime < targetWeakenTime) {
+                        target = sreverName;
+                        targetWeakenTime = weakenTime;
+                    }
+                }
+            }
+        }
+
+        if (target == '') {
+            continue;
+        }
+        const relay = 'home';
+        const ram = ns.getServerUsedRam(relay);
+        const maxRam = ns.getServerMaxRam(relay);
+        const freeRam = maxRam - ram;
+
+        if (isFinite(targetWeakenTime)) {
+            if(relayScript(weakenScript, relay, freeRam, target)) {
+                await ns.sleep(targetWeakenTime - 500);
+            }
+            continue;
+        }
+    }
+}
