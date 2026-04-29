@@ -22,6 +22,9 @@
   },
   "homepage": "https://github.com/puggan/bitburner-puggan#readme",
   "dependencies": {
-    "bitburner-sync": "^1.5.3"
+    "bitburner-sync": "^1.5.3",
+    "gulp": "^5.0.1",
+    "gulp-typescript": "^6.0.0-alpha.1",
+    "typescript": "^6.0.3"
   }
 }
