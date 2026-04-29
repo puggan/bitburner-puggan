@@ -1,9 +1,11 @@
+import {NS, AutocompleteData} from '@ns';
+
 /**
  * @param {AutocompleteData} data - context about the game, useful when autocompleting
  * @param {string[]} args - current arguments, not including "run script.js"
  * @returns {string[]} - the array of possible autocomplete options
  */
-export function autocomplete(data, args) {
+export function autocomplete(data: AutocompleteData, args: string[]) {
 	switch (args.length) {
 		case 1:
 			return ['1P', '512T', '256T', '128T', '64T', '32T', '16T', '8T', '4T', '2T'];
@@ -15,7 +17,7 @@ export function autocomplete(data, args) {
 /**
  * @param {NS} ns
  **/
-export async function main(ns) {
+export async function main(ns: NS) {
 	const spareMoney = (ns.args[1] || 1) * 1024 * 1024 * 1024;
 
 	const ramLimit = ((size) => {
