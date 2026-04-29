@@ -1,9 +1,28 @@
-export function favorToRep(favor) {
+import {NS} from '@ns';
+
+type factionData = {
+	factionName: string,
+	currentFavor: number,
+	gainedFavor: number,
+	missingFavor: number,
+	favorMult: number,
+	factionFavorGoal: number,
+	missingRep: number,
+	missingRepTotal: number,
+	augCount: number,
+	augMaxRep: number,
+	targetRep: number,
+	favorTargetRep: number,
+	joined: boolean,
+	blocked: boolean
+};
+
+export function favorToRep(favor: number) {
 	return 25000 * (Math.pow(1.02, favor) - 1);
 }
 
 /** @param {NS} ns */
-export function joinFactions(ns) {
+export function joinFactions(ns: NS) {
 	const cityFactions = new Set(
 		[
 			"Aevum",
@@ -24,13 +43,13 @@ export function joinFactions(ns) {
 }
 
 /** @param {NS} ns */
-export async function step(ns) {
+export async function step(ns: NS) {
 	ns.clearLog();
 	ns.printf('%s', '-------------------------------------------------------------------------------');
 	const playerInfo = ns.getPlayer();
 	const currentAugsNames = ns.singularity.getOwnedAugmentations(true);
 	const favorGoal = ns.getFavorToDonate();
-	const factionList = [];
+	const factionList: factionData[] = [];
 	const repCost = 1e6 /* 10e6 */ / (ns.getPlayer().mults.faction_rep /* * ns.getPlayer().mults.charisma*/ * ns.getBitNodeMultipliers().FactionWorkRepGain);
 	const homeMoney = ns.getServerMoneyAvailable("home");
 	const intrestingFactions = new Set(
@@ -49,7 +68,7 @@ export async function step(ns) {
 			"The Dark Army", "The Syndicate", "The Covenant", "Daedalus", "Illuminati"
 		]
 	);
-	const factionIcons = {
+	const factionIcons: {[faction: string]: string} = {
 			"Aevum": "📍",
 			"Bachman & Associates": "🏢", 
 			"BitRunners": "💻",
@@ -85,8 +104,7 @@ export async function step(ns) {
 
 	const playerFactions = new Set(playerInfo.factions);
 	const allFactions = new Set([...intrestingFactions, ...playerFactions]);
-	const missingFactions = new Set([...intrestingFactions].filter(f => !playerFactions.has(f)));
-	const blockedFactions = new Set([]);
+	const blockedFactions = new Set([] as string[]);
 
 	const citySets = [
 		["Volhaven"],
@@ -147,10 +165,10 @@ export async function step(ns) {
 
 	factionList.sort(
 		(a, b) => 
-			((b.augCount > 0) - (a.augCount > 0)) ||
-			((b.joined) - (a.joined)) ||
-			((a.missingRep > 0) - (b.missingRep > 0)) ||
-			((b.factionFavorGoal > 0) - (a.factionFavorGoal > 0)) ||
+			(+(b.augCount > 0) - +(a.augCount > 0)) ||
+			(+(b.joined) - +(a.joined)) ||
+			(+(a.missingRep > 0) - +(b.missingRep > 0)) ||
+			(+(b.factionFavorGoal > 0) - +(a.factionFavorGoal > 0)) ||
 			((a.missingRep) - (b.missingRep)) ||
 			(b.currentFavor + b.gainedFavor) - (a.currentFavor + a.gainedFavor)
 	);
@@ -210,10 +228,10 @@ export async function step(ns) {
 }
 
 /** @param {NS} ns */
-export async function main(ns) {
+export async function main(ns: NS) {
 	while (true) {
-		await joinFactions(ns);
-		await step(ns);
+		joinFactions(ns);
+		step(ns);
 		await ns.sleep(10000);
 	}
 }
