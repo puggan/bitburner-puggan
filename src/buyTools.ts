@@ -28,7 +28,7 @@ export function buyTools(ns: NS) {
     const cheapestTool = Math.min(...missingTools.map(row => row.price));
 
     if (!hasTor) {
-        if (money < (torPrice + cheapestTool.price)) return false;
+        if (money < (torPrice + cheapestTool)) return false;
 
         if (!ns.singularity.purchaseTor()) {
             return false;
