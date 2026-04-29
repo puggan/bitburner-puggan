@@ -1,7 +1,7 @@
 import {NS} from '@ns';
 
 /** @param {NS} ns */
-async function joinGang(ns: NS) {
+function joinGang(ns: NS) {
     if (!ns.getPlayer().factions.includes('Slum Snakes')) {
         ns.singularity.joinFaction('Slum Snakes');
         return;
@@ -30,7 +30,7 @@ function printTaskCounter(ns: NS, members: string[]) {
  * @param {NS} ns
  * @param {string} newRecruitName
  */
-async function recruit(ns: NS, newRecruitName: string) {
+function recruit(ns: NS, newRecruitName: string) {
     if (ns.gang.canRecruitMember()) {
         ns.gang.recruitMember(newRecruitName);
         ns.gang.setMemberTask(newRecruitName, 'Train Combat');
@@ -50,8 +50,8 @@ async function recruit(ns: NS, newRecruitName: string) {
         return;
     }
     for (const memberName of members) {
-        const accendInfo = ns.gang.getAscensionResult(memberName);
-        if (accendInfo && accendInfo.str >= 2) {
+        const ascensionInfo = ns.gang.getAscensionResult(memberName);
+        if (ascensionInfo && ascensionInfo.str >= 2) {
             ns.gang.setMemberTask(memberName, 'Train Combat');
             ns.gang.ascendMember(memberName);
             continue;
@@ -88,7 +88,7 @@ async function recruit(ns: NS, newRecruitName: string) {
 }
 
 /** @param {NS} ns */
-async function buyUpgrade(ns: NS) {
+function buyUpgrade(ns: NS) {
     const members = ns.gang.getMemberNames();
     const upgrades = [];
     const allEquipments = ns.gang.getEquipmentNames();
@@ -138,12 +138,12 @@ async function buyUpgrade(ns: NS) {
 }
 
 /** @param {NS} ns */
-async function expand(ns: NS) {
+function expand(ns: NS) {
     const debugAll = true;
     const gangInfo = ns.gang.getGangInformation();
     const members = ns.gang.getMemberNames();
     const homeMoney = ns.getServerMoneyAvailable("home");
-    const moreUpgrades = await buyUpgrade(ns);
+    const moreUpgrades = buyUpgrade(ns);
     const wanted = gangInfo.wantedLevel > 1000 || gangInfo.wantedLevel * 100 > gangInfo.respect && gangInfo.wantedLevel > 10;
     if (wanted) {
         for (const memberName of members) {
@@ -160,11 +160,11 @@ async function expand(ns: NS) {
     const startupPeriod = uptime < 3 * 60000;
     const gangRep = ns.singularity.getFactionRep('Slum Snakes');
     for (const memberName of members) {
-        const accendInfo = ns.gang.getAscensionResult(memberName);
-        if (accendInfo && accendInfo.str >= 2) {
+        const ascensionInfo = ns.gang.getAscensionResult(memberName) || {str: 1};
+        if (ascensionInfo && ascensionInfo.str >= 2) {
             ns.gang.setMemberTask(memberName, 'Train Combat');
             ns.gang.ascendMember(memberName);
-            if (memberName === 'A' || debugAll) ns.printf('Status %s: %s (%s)', memberName, 'Acend', accendInfo.str);
+            if (memberName === 'A' || debugAll) ns.printf('Status %s: %s (%s)', memberName, 'Acend', ascensionInfo.str);
             continue;
         }
         const memberInfo = ns.gang.getMemberInformation(memberName);
@@ -196,7 +196,7 @@ async function expand(ns: NS) {
                 if (memberInfo.task != 'Train Combat') {
                     ns.gang.setMemberTask(memberName, 'Train Combat');
                 }
-                if (memberName === 'A' || debugAll) ns.printf('Status %s: %s (%.2f x %.2f)', memberName, 'Mul < 16', memberInfo.str_asc_mult, accendInfo ? accendInfo.str : 0);
+                if (memberName === 'A' || debugAll) ns.printf('Status %s: %s (%.2f x %.2f)', memberName, 'Mul < 16', memberInfo.str_asc_mult, ascensionInfo ? ascensionInfo.str : 0);
             }
             continue;
         }
@@ -211,8 +211,8 @@ async function expand(ns: NS) {
                     'STR < 5k',
                     memberInfo.str,
                     memberInfo.str_asc_mult,
-                    accendInfo ? accendInfo.str : 0,
-                    accendInfo ? memberInfo.str_asc_mult * accendInfo.str : 0,
+                    ascensionInfo ? ascensionInfo.str : 0,
+                    ascensionInfo ? memberInfo.str_asc_mult * ascensionInfo.str : 0,
                 );
                 continue;
             }
@@ -291,14 +291,14 @@ async function expand(ns: NS) {
         if (memberInfo.task != 'Train Combat') {
             ns.gang.setMemberTask(memberName, 'Train Combat');
         }
-        if (memberName === 'A' || debugAll) ns.printf('Status %s: %s (%s)', memberName, 'Done, Train', accendInfo?.str || 1);
+        if (memberName === 'A' || debugAll) ns.printf('Status %s: %s (%s)', memberName, 'Done, Train', ascensionInfo.str);
     }
     printTaskCounter(ns, members);
     return;
 }
 
 /** @param {NS} ns */
-async function gangAction(ns: NS) {
+function gangAction(ns: NS) {
     if (!ns.gang.inGang()) {
         return joinGang(ns);
     }
@@ -316,7 +316,7 @@ export async function main(ns: NS) {
         ns.singularity.commitCrime("Mug", true);
     }
     while (true) {
-        await gangAction(ns);
+        gangAction(ns);
         await ns.sleep(ns.gang.inGang() && ns.gang.getBonusTime() >= 1000 ? 1000 : 10000);
     }
 }
