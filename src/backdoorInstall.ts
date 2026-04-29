@@ -1,6 +1,6 @@
 import {NS} from '@ns';
 
-export async function connectionChain(ns: NS, hopes: string[]) {
+export function connectionChain(ns: NS, hopes: string[]) {
     for (const hop of hopes) {
         ns.tprintf('Hop %s', hop);
         if (!ns.singularity.connect(hop)) {
@@ -44,7 +44,6 @@ export function list(ns: NS) {
                 paths[sibling] = [sibling];
                 continue
             }
-            ;
             paths[sibling] = [...paths[nextServer], sibling];
             if (server.purchasedByPlayer) continue;
             if (server.requiredHackingSkill && server.requiredHackingSkill > pLvl) continue;
@@ -68,7 +67,7 @@ export async function backdoor(ns: NS, attacked: number) {
     const serverCount = attacked + sortedMissingBackDoors.length;
     const attackedServer = sortedMissingBackDoors[0];
     ns.tprintf('[%s] Chain connection to %s', new Date().toLocaleTimeString('en-SE'), attackedServer);
-    if (await connectionChain(ns, paths[attackedServer])) {
+    if (connectionChain(ns, paths[attackedServer])) {
         const installTimeMs = ns.getHackTime(attackedServer) / 4;
         const etaDate = new Date(Date.now() + installTimeMs).toLocaleString('en-SE');
         ns.tprintf('[%s] Installing backdoor at %s (%d/%d), ETA %s', new Date().toLocaleTimeString('en-SE'), attackedServer, attacked, serverCount, etaDate);
