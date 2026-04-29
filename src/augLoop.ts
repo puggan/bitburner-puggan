@@ -1,32 +1,32 @@
 import {NS, Multipliers} from '@ns';
 
 type FactionData = {
-    name: string;
-    rep: number;
+    donatable: boolean | null;
     favor: number;
-    donateable: boolean | null;
-    needRep: number;
     joined: boolean;
+    name: string;
+    needRep: number;
+    rep: number;
 }
 
 type AugData = {
-    name: string;
-    faction: string;
-    price: number;
+    available: boolean | null;
     curPrice: number;
+    faction: string;
+    name: string;
+    owned: boolean;
     preReq: string[];
+    price: number;
     rep: number;
     stats: Multipliers;
-    owned: boolean;
-    availible: boolean | null;
 }
 
 type NamedAugData = {
-    availible: boolean;
     augData: AugData;
+    available: boolean;
     factions: Set<string>;
-    owned: boolean;
     joined: boolean | null;
+    owned: boolean;
 }
 
 /** @param {NS} ns */
@@ -36,7 +36,7 @@ export async function step(ns: NS) {
     const factionsMap: { [factionName: string]: FactionData } = {};
     const augs = [];
     const currentAugsNames = ns.singularity.getOwnedAugmentations(true);
-    const intrestingFactions = new Set(
+    const interestingFactions = new Set(
         [
             // Early Game / City
             /*"CSEC",*/ "CyberSec", "Tian Di Hui", "Netburners", "Sector-12", "Chongqing",
@@ -53,18 +53,18 @@ export async function step(ns: NS) {
         ]
     );
     const playerFactions = new Set(player.factions);
-    const combinedFactions = new Set([...player.factions, ...intrestingFactions]);
+    const combinedFactions = new Set([...player.factions, ...interestingFactions]);
 
     for (const faction of combinedFactions) {
         const factionData: FactionData = {
             name: faction,
             rep: ns.singularity.getFactionRep(faction) || -1,
             favor: ns.singularity.getFactionFavor(faction),
-            donateable: null,
+            donatable: null,
             needRep: 0,
             joined: playerFactions.has(faction),
         };
-        factionData.donateable = factionData.favor > donateRequirements;
+        factionData.donatable = factionData.favor > donateRequirements;
         for (const aug of ns.singularity.getAugmentationsFromFaction(faction)) {
             const augData: AugData = {
                 name: aug,
@@ -75,9 +75,9 @@ export async function step(ns: NS) {
                 rep: ns.singularity.getAugmentationRepReq(aug) || 0,
                 stats: ns.singularity.getAugmentationStats(aug),
                 owned: currentAugsNames.includes(aug),
-                availible: null,
+                available: null,
             }
-            augData.availible = factionData.joined && !augData.owned && augData.rep <= factionData.rep;
+            augData.available = factionData.joined && !augData.owned && augData.rep <= factionData.rep;
             augs.push(augData);
             if (!augData.owned && augData.rep > factionData.rep && factionData.needRep < augData.rep) {
                 factionData.needRep = augData.rep;
@@ -86,13 +86,13 @@ export async function step(ns: NS) {
         factionsMap[faction] = factionData;
     }
     ns.printf("%d aug loaded", augs.length);
-    const availibleAugs = augs.filter((a) => a.availible);
-    const availibleAugNames = new Set(availibleAugs.map(a => a.name));
+    const availableAugs = augs.filter((a) => a.available);
+    const availableAugNames = new Set(availableAugs.map(a => a.name));
     const augByName: { [augName: string]: NamedAugData } = {};
     for (const augData of augs) {
         if (!augByName[augData.name]) {
             augByName[augData.name] = {
-                availible: availibleAugNames.has(augData.name),
+                available: availableAugNames.has(augData.name),
                 augData,
                 factions: new Set(),
                 owned: augData.owned,
@@ -105,14 +105,14 @@ export async function step(ns: NS) {
         augByName[augName].joined = [...augByName[augName].factions].some(faction => factionsMap[faction].joined);
     }
 
-    ns.printf("%d aug availible", availibleAugs.length);
-    availibleAugs.sort((a, b) => a.price - b.price);
+    ns.printf("%d aug available", availableAugs.length);
+    availableAugs.sort((a, b) => a.price - b.price);
     let totalPrice = 0;
     let augIndex = 0;
     let lastAugName = '';
     let totalLimitNotPassed = true;
     let myMoney: number | null = ns.getServerMoneyAvailable('home');
-    for (const augData of availibleAugs) {
+    for (const augData of availableAugs) {
         const duplicate = lastAugName == augData.name;
         lastAugName = augData.name;
         if (!duplicate) totalPrice = augData.curPrice + 2 * totalPrice;
@@ -143,11 +143,11 @@ export async function step(ns: NS) {
         }
     }
     ns.printf('%s', '-'.repeat(100));
-    const lockedAugs = Object.values(augByName).filter(a => !a.owned && !a.availible)
+    const lockedAugs = Object.values(augByName).filter(a => !a.owned && !a.available)
     lockedAugs.sort((a, b) => a.augData.price - b.augData.price);
     for (const augDataSet of lockedAugs) {
         if (augDataSet.owned) continue;
-        if (augDataSet.availible) continue;
+        if (augDataSet.available) continue;
         ns.printf(
             "%10s 🔒 %s %s @ %s",
             ns.formatNumber(augDataSet.augData.price),
