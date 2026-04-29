@@ -9,12 +9,12 @@ export async function main(ns: NS) {
     const moneyServers = [];
     const myServers = [];
     const unreachableServers = [];
-    const paths = {
+    const paths: {[server: string]: string} = {
         home: '(home)',
     };
     while (todo.length > 0) {
         const nextServer = todo.pop();
-        if (servers.includes(nextServer)) {
+        if (!nextServer || servers.includes(nextServer)) {
             continue;
         }
         servers.push(nextServer);
@@ -62,7 +62,7 @@ export async function main(ns: NS) {
             // ns.tprint('root@' + serverName);
             rootedServers.push(serverName);
         } else {
-            if (server.numOpenPortsRequired > maxPorts) {
+            if (server.numOpenPortsRequired && server.numOpenPortsRequired > maxPorts) {
                 missingPorts++;
                 //ns.tprint('missing-ports-' + server.numOpenPortsRequired + '@' + serverName);
                 continue;
@@ -86,7 +86,7 @@ export async function main(ns: NS) {
                 ns.nuke(serverName);
             }
             rootedServers.push(serverName);
-            if (server.requiredHackingSkill > pLvl) {
+            if (server.requiredHackingSkill && server.requiredHackingSkill > pLvl) {
                 unreachableServers.push({lvl: server.requiredHackingSkill, serverName});
                 missingLevel++;
                 nextLevel = Math.min(nextLevel, server.requiredHackingSkill);
@@ -101,17 +101,17 @@ export async function main(ns: NS) {
         }
     }
     unreachableServers.sort((a, b) => b.lvl - a.lvl || a.serverName.localeCompare(b.serverName));
-    await ns.write("serverList.txt", servers2hack.join("\r\n"), 'w');
-    await ns.write("rootList.txt", rootedServers.join("\r\n"), 'w');
-    await ns.write("moneyServers.txt", moneyServers.join("\r\n"), 'w');
-    await ns.write("unreachableServers.txt", unreachableServers.map((s) => s.lvl + ": " + s.serverName).join("\r\n"), 'w');
-    await ns.write("paths.json.txt", JSON.stringify(paths, null, 2), 'w');
+    ns.write("serverList.txt", servers2hack.join("\r\n"), 'w');
+    ns.write("rootList.txt", rootedServers.join("\r\n"), 'w');
+    ns.write("moneyServers.txt", moneyServers.join("\r\n"), 'w');
+    ns.write("unreachableServers.txt", unreachableServers.map((s) => s.lvl + ": " + s.serverName).join("\r\n"), 'w');
+    ns.write("paths.json.txt", JSON.stringify(paths, null, 2), 'w');
     ns.tprint("Backdoors: " + servers2hack.length + ", missing ports: " + missingPorts + ", missing levels: " + missingLevel);
     if (missingLevel) {
         ns.tprint("Next target at " + nextLevel);
-        await ns.write("lvl.txt", nextLevel, 'w');
+        ns.write("lvl.txt", '' + nextLevel, 'w');
     } else {
-        await ns.write("lvl.txt", "-", 'w');
+        ns.write("lvl.txt", "-", 'w');
     }
     const globalFiles = [
         "serverList.txt",
@@ -122,6 +122,6 @@ export async function main(ns: NS) {
         "hackOnce.js",
     ];
     for (const serverName of myServers) {
-        await ns.scp(globalFiles, serverName);
+        ns.scp(globalFiles, serverName);
     }
 }
