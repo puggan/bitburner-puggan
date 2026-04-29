@@ -20,5 +20,8 @@
   "bugs": {
     "url": "https://github.com/puggan/bitburner-puggan/issues"
   },
-  "homepage": "https://github.com/puggan/bitburner-puggan#readme"
+  "homepage": "https://github.com/puggan/bitburner-puggan#readme",
+  "dependencies": {
+    "bitburner-sync": "^1.5.3"
+  }
 }
