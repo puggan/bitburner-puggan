@@ -1,0 +1,10 @@
+import type {NS, Server} from '@ns';
+import serverNames from '/data/get/serverNames.js';
+
+export function main(ns: NS) {
+    const servers: { [serverName: string]: Server } = {};
+    for (const serverName of serverNames(ns)) {
+        servers[serverName] = ns.getServer(serverName)
+    }
+    ns.write('data/servers.json.txt', JSON.stringify(servers, null, 2), 'w');
+}
