@@ -2,20 +2,18 @@ const gulp = require('gulp');
 const ts = require('gulp-typescript');
 const { exec } = require('child_process');
 
-// Load your tsconfig.json settings
 const tsProject = ts.createProject('tsconfig.json');
 
-// Task: Transpile TS to JS
+// 1. Build Function
 function buildTS() {
     return tsProject.src()
         .pipe(tsProject())
         .js
-        .pipe(gulp.dest('dist')); // Outputting to a 'dist' folder is cleaner
+        .pipe(gulp.dest('dist'));
 }
 
-// Task: Trigger bitburner-sync
-// This assumes bitburner-sync is configured to watch your 'dist' folder
-function sync(cb) {
+// 2. Sync Function
+function syncTask(cb) {
     exec('npx bitburner-sync', (err, stdout, stderr) => {
         if (err) {
             console.error(`Sync Error: ${err}`);
@@ -26,12 +24,25 @@ function sync(cb) {
     });
 }
 
-// Task: Watcher
-function watchFiles() {
-    // Watch all .ts files in src
-    gulp.watch('src/**/*.ts', gulp.series(buildTS, sync));
+// 3. Watch Logic
+function watchOnly() {
+    // Watch src and run build + sync whenever a file changes
+    gulp.watch('src/**/*.ts', gulp.series(buildTS, syncTask));
 }
 
-// Export the default task
-exports.default = gulp.series(buildTS, sync, watchFiles);
+// --- Task Command Mapping ---
+
+// gulp build
 exports.build = buildTS;
+
+// gulp sync
+exports.sync = syncTask;
+
+// gulp watchOnly
+exports.watchOnly = watchOnly;
+
+// gulp watch (Builds, Syncs, then starts the Watcher)
+exports.watch = gulp.series(buildTS, syncTask, watchOnly);
+
+// gulp (Default: Build and Sync only)
+exports.default = gulp.series(buildTS, syncTask);

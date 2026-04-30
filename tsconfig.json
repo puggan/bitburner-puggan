@@ -23,9 +23,9 @@
     "skipLibCheck": true,                   // Skip type checking of declaration files (.d.ts)
 
     "paths": {
-      "@ns": ["./src/NetscriptDefinitions.d.ts"]
+      "@ns": ["./src/NetscriptDefinitions.d.ts"],
+      "/*": ["./src/*"]
     }
-  }
   },
   "include": ["src/**/*"]
 }
