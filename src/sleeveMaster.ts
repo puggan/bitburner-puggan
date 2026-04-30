@@ -41,6 +41,7 @@ export async function main(ns: NS) {
         "Daedalus",
         "Illuminati"
     ] as const;
+    const alreadyTaken: Set<string> = new Set();
     let inGang = false;
     let karma = 0;
 
@@ -91,31 +92,8 @@ export async function main(ns: NS) {
         // 3. FACTION / COMPANY WORK
         // Check Companies first
         for (const companyName of companies) {
+            if (alreadyTaken.has(companyName)) continue;
             if (ns.getPlayer().factions.includes(companyName)) {
-                const companyFavor = ns.singularity.getFactionFavor(companyName) + ns.singularity.getFactionFavorGain(companyName);
-                if (companyFavor < favorGoal) {
-                    if (task?.type !== "FACTION" || task?.factionName !== companyName) {
-                        const workPrio = [
-                            'security',
-                            'field',
-                            'hacking',
-                        ] as const;
-                        const possibleWork: Set<typeof workPrio[number]> = new Set(ns.singularity.getFactionWorkTypes(companyName));
-                        if (!possibleWork.size) continue;
-                        try {
-                            const preferredWork = workPrio.find(workType => possibleWork.has(workType));
-                            if (!preferredWork) {
-                                continue;
-                            }
-                            ns.sleeve.setToFactionWork(sleeveIndex, companyName, preferredWork);
-                        } catch (e) {
-                            continue;
-                        }
-                    }
-                    const freshTask = ns.sleeve.getTask(sleeveIndex);
-                    ns.printf("Sleeve %d: company-faction-work %s for %s [%s]", sleeveIndex, freshTask?.type === 'FACTION' ? freshTask.factionWorkType : '', companyName, ns.formatNumber(companyFavor));
-                    return;
-                }
                 continue;
             }
 
@@ -131,12 +109,46 @@ export async function main(ns: NS) {
                     continue;
                 }
             }
+            alreadyTaken.add(companyName);
             ns.printf("Sleeve %d: employment-work for %s [%s]", sleeveIndex, companyName, ns.formatNumber(companyRep));
             return;
         }
 
+        for (const companyName of companies) {
+            if (alreadyTaken.has(companyName)) continue;
+            if (!ns.getPlayer().factions.includes(companyName)) {
+                continue;
+            }
+            const companyFavor = ns.singularity.getFactionFavor(companyName) + ns.singularity.getFactionFavorGain(companyName);
+            if (companyFavor >= favorGoal) continue;
+            if (task?.type !== "FACTION" || task?.factionName !== companyName) {
+                const workPrio = [
+                    'security',
+                    'field',
+                    'hacking',
+                ] as const;
+                const possibleWork: Set<typeof workPrio[number]> = new Set(ns.singularity.getFactionWorkTypes(companyName));
+                if (!possibleWork.size) continue;
+                try {
+                    const preferredWork = workPrio.find(workType => possibleWork.has(workType));
+                    if (!preferredWork) {
+                        continue;
+                    }
+                    ns.sleeve.setToFactionWork(sleeveIndex, companyName, preferredWork);
+                } catch (e) {
+                    continue;
+                }
+            }
+            alreadyTaken.add(companyName);
+            const freshTask = ns.sleeve.getTask(sleeveIndex);
+            ns.printf("Sleeve %d: company-faction-work %s for %s [%s]", sleeveIndex, freshTask?.type === 'FACTION' ? freshTask.factionWorkType : '', companyName, ns.formatNumber(companyFavor));
+            return;
+        }
+
+
         // 4. Check General Factions
         for (let factionName of factions) {
+            if (alreadyTaken.has(factionName)) continue;
             const factionFavor = ns.singularity.getFactionFavor(factionName) + ns.singularity.getFactionFavorGain(factionName);
             if (ns.getPlayer().factions.includes(factionName) && factionFavor < favorGoal) {
                 if (task?.type !== "FACTION" || task?.factionName !== factionName) {
@@ -157,6 +169,7 @@ export async function main(ns: NS) {
                         continue;
                     }
                 }
+                alreadyTaken.add(factionName);
                 const freshTask = ns.sleeve.getTask(sleeveIndex);
                 ns.printf("Sleeve %d: faction-work %s for %s [%s]", sleeveIndex, (freshTask?.type === "FACTION" ? freshTask.factionWorkType : '-'), factionName, ns.formatNumber(factionFavor));
                 return;
@@ -195,6 +208,7 @@ export async function main(ns: NS) {
         }
 
         await ns.sleep(10000); // Check every 10 seconds
+        alreadyTaken.clear();
         ns.clearLog()
     }
 }
