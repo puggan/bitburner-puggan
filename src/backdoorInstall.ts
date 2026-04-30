@@ -1,5 +1,9 @@
 import {NS} from '@ns';
 
+/**
+ * @param {NS} ns
+ * @param {string[]} hopes
+ */
 export function connectionChain(ns: NS, hopes: string[]) {
     for (const hop of hopes) {
         ns.tprintf('Hop %s', hop);
@@ -11,6 +15,7 @@ export function connectionChain(ns: NS, hopes: string[]) {
     return true;
 }
 
+/** @param {NS} ns */
 export function list(ns: NS) {
     const pLvl = ns.getHackingLevel();
     const todo = ['home'];
@@ -59,6 +64,10 @@ export function list(ns: NS) {
     return {paths, sortedMissingBackDoors};
 }
 
+/**
+ * @param {NS} ns
+ * @param {number} attacked
+ */
 export async function backdoor(ns: NS, attacked: number) {
     const {paths, sortedMissingBackDoors} = list(ns);
     if (sortedMissingBackDoors.length === 0) {

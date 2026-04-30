@@ -17,6 +17,7 @@ type factionData = {
 	blocked: boolean
 };
 
+/** @param {number} favor */
 export function favorToRep(favor: number) {
 	return 25000 * (Math.pow(1.02, favor) - 1);
 }

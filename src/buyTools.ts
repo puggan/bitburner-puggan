@@ -1,5 +1,6 @@
 import type {NS} from '@ns';
 
+/** @param {NS} ns */
 export function buyTools(ns: NS) {
     const torPrice = 200000;
     const hasTor = ns.hasTorRouter();
@@ -52,6 +53,7 @@ export function buyTools(ns: NS) {
     return upgrades > 0;
 }
 
+/** @param {NS} ns */
 export function buyHomeRam(ns: NS) {
     const money = ns.getServerMoneyAvailable("home");
     if (ns.singularity.getUpgradeHomeRamCost() > money) return false;
