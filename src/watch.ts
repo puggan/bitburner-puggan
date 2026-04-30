@@ -1,4 +1,4 @@
-import {NS, AutocompleteData} from '@ns';
+import type {NS, AutocompleteData} from '@ns';
 
 /**
  * @param {AutocompleteData} data

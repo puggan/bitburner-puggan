@@ -1,4 +1,4 @@
-import {NS} from '@ns';
+import type {NS} from '@ns';
 
 export function buyTools(ns: NS) {
     const torPrice = 200000;

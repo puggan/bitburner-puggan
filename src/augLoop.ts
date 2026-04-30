@@ -1,4 +1,4 @@
-import {NS, Multipliers} from '@ns';
+import type {NS, Multipliers} from '@ns';
 
 type FactionData = {
     donatable: boolean | null;
