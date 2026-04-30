@@ -4,7 +4,7 @@ type FactionRow = {
     name: string;
     rep: number;
     favor: number;
-    donateable: boolean | null;
+    donatable: boolean | null;
     needRep: number;
 }
 
@@ -16,7 +16,7 @@ type AugRow = {
     rep: number;
     stats: Multipliers;
     owned: boolean;
-    availible: boolean | null,
+    available: boolean | null;
 }
 
 /** @param {NS} ns */
@@ -31,10 +31,10 @@ export async function augments(ns: NS) {
             name: faction,
             rep: ns.singularity.getFactionRep(faction) || -1,
             favor: ns.singularity.getFactionFavor(faction),
-            donateable: null,
+            donatable: null,
             needRep: 0,
         };
-        factionData.donateable = factionData.favor > donateRequirements;
+        factionData.donatable = factionData.favor > donateRequirements;
         for (const aug of ns.singularity.getAugmentationsFromFaction(faction)) {
             const augData: AugRow = {
                 name: aug,
@@ -44,11 +44,11 @@ export async function augments(ns: NS) {
                 rep: ns.singularity.getAugmentationRepReq(aug) || 0,
                 stats: ns.singularity.getAugmentationStats(aug),
                 owned: currentAugsNames.includes(aug),
-                availible: null,
+                available: null,
             }
-            augData.availible = !augData.owned && augData.rep <= factionData.rep;
+            augData.available = !augData.owned && augData.rep <= factionData.rep;
             if (augData.name === 'NeuroFlux Governor') {
-                augData.availible = augData.rep <= factionData.rep;
+                augData.available = augData.rep <= factionData.rep;
             }
             augs.push(augData);
             if (!augData.owned && augData.rep > factionData.rep && factionData.needRep < augData.rep) {
@@ -60,10 +60,10 @@ export async function augments(ns: NS) {
         );
     }
     ns.printf("%d aug loaded", augs.length);
-    const availibleAugs = augs.filter((a) => a.availible);
-    ns.printf("%d aug availible", availibleAugs.length);
-    availibleAugs.sort((a, b) => b.price - a.price);
-    for (const augData of availibleAugs) {
+    const availableAugs = augs.filter((a) => a.available);
+    ns.printf("%d aug availible", availableAugs.length);
+    availableAugs.sort((a, b) => b.price - a.price);
+    for (const augData of availableAugs) {
         if (ns.singularity.purchaseAugmentation(augData.faction, augData.name)) {
             ns.printf('Purchases %s from %s', augData.name, augData.faction);
             ns.tprintf('Purchases %s from %s', augData.name, augData.faction);
@@ -79,7 +79,7 @@ export async function homeUpgrades(ns: NS) {
     return ns.singularity.upgradeHomeRam() || ns.singularity.upgradeHomeCores();
 }
 
-export function accendGang(ns: NS) {
+export function ascendGang(ns: NS) {
     if (!ns.gang.inGang()) return;
     for (const name of ns.gang.getMemberNames()) {
         ns.gang.ascendMember(name);
@@ -94,6 +94,6 @@ export async function main(ns: NS) {
     while (await homeUpgrades(ns)) {
         await ns.sleep(1000);
     }
-    accendGang(ns);
+    ascendGang(ns);
     ns.singularity.installAugmentations('startup.js');
 }
