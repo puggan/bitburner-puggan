@@ -1,4 +1,4 @@
-import {NS, FactionWorkType} from '@ns';
+import {NS} from '@ns';
 
 /** @param {NS} ns */
 export async function main(ns: NS) {
@@ -96,11 +96,11 @@ export async function main(ns: NS) {
                 if (companyFavor < favorGoal) {
                     if (task?.type !== "FACTION" || task?.factionName !== companyName) {
                         const workPrio = [
-                            FactionWorkType.security,
-                            FactionWorkType.field,
-                            FactionWorkType.hacking,
-                        ];
-                        const possibleWork = new Set(ns.singularity.getFactionWorkTypes(companyName));
+                            'security',
+                            'field',
+                            'hacking',
+                        ] as const;
+                        const possibleWork: Set<typeof workPrio[number]> = new Set(ns.singularity.getFactionWorkTypes(companyName));
                         if (!possibleWork.size) continue;
                         try {
                             const preferredWork = workPrio.find(workType => possibleWork.has(workType));
@@ -141,11 +141,11 @@ export async function main(ns: NS) {
             if (ns.getPlayer().factions.includes(factionName) && factionFavor < favorGoal) {
                 if (task?.type !== "FACTION" || task?.factionName !== factionName) {
                     const workPrio = [
-                        FactionWorkType.security,
-                        FactionWorkType.field,
-                        FactionWorkType.hacking,
-                    ];
-                    const possibleWork = new Set(ns.singularity.getFactionWorkTypes(factionName));
+                        'security',
+                        'field',
+                        'hacking',
+                    ] as const;
+                    const possibleWork: Set<typeof workPrio[number]> = new Set(ns.singularity.getFactionWorkTypes(factionName));
                     if (!possibleWork.size) continue;
                     try {
                         const preferredWork = workPrio.find(workType => workType && possibleWork.has(workType));
