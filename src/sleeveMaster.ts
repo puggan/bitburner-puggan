@@ -163,6 +163,22 @@ export async function main(ns: NS) {
             }
         }
 
+        if (!task || task.type === "RECOVERY" || task.type === "SYNCHRO" || task.type === "CRIME" && task.crimeType === "Mug") {
+            const statsSum = stats.skills.strength + stats.skills.defense + stats.skills.dexterity + stats.skills.agility;
+            if (statsSum < 400) {
+                if (!task || task.type !== "CRIME" || task.crimeType !== "Mug") {
+                    ns.sleeve.setToCommitCrime(sleeveIndex, "Mug");
+                    ns.printf("Sleeve %d: free-crime Mug [%s/400]", sleeveIndex, ns.formatNumber(statsSum));
+                    return;
+                }
+            }
+            if (!task || task.type !== "CRIME" || task.crimeType !== "Homicide") {
+                ns.sleeve.setToCommitCrime(sleeveIndex, "Homicide");
+                ns.printf("Sleeve %d: free-crime Homicide", sleeveIndex);
+                return;
+            }
+        }
+
         ns.printf("Sleeve %d: FREE", sleeveIndex);
     };
 
