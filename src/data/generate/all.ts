@@ -1,13 +1,29 @@
-import type {NS} from '@ns';
+import type {NS, ScriptArg} from '@ns';
 
 /**
  * @param {NS} ns
  * @param {number} pid
  */
-async function waitForPid(ns: NS, pid: number) {
+export async function waitForPid(ns: NS, pid: number) {
     while (ns.isRunning(pid)) {
         await ns.sleep(100);
     }
+}
+
+/**
+ * @param {NS} ns
+ * @param {string} script
+ * @param {ScriptArg[]} args
+ */
+export async function runAndWait(ns: NS, script: string, ...args: ScriptArg[]): Promise<void> {
+    const pid = ns.run(script, {threads: 1, preventDuplicates: true}, ...args);
+
+    if (!pid) {
+        ns.tprint(`ERROR: Failed to start ${script}. Possibly not enough RAM?`);
+        return;
+    }
+
+    await waitForPid(ns, pid);
 }
 
 /**
