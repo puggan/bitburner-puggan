@@ -34,6 +34,7 @@ export async function runAll(ns: NS) {
         '/data/generate/portTools.js',
         '/data/generate/serverNames.js',
         '/data/generate/servers.js',
+        '/data/generate/serverCategories.js',
     ];
     await runList(ns, scripts);
 }
