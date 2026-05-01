@@ -9,6 +9,7 @@ async function waitForPid(ns: NS, pid: number) {
 export async function runAll(ns: NS)
 {
     const scripts = [
+        '/data/generate/player.js',
         '/data/generate/serverNames.js',
         '/data/generate/servers.js',
     ];
