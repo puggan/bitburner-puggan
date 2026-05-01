@@ -14,7 +14,7 @@ export async function runAll(ns: NS)
         '/data/generate/servers.js',
     ];
     for (const script of scripts) {
-        const pid = ns.run(script);
+        const pid = ns.run(script, {threads: 1, preventDuplicates: true});
 
         if (!pid) {
             ns.tprint(`ERROR: Failed to start ${script}. Possibly not enough RAM?`);
