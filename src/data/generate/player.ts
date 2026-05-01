@@ -1,5 +1,6 @@
 import {NS} from '@ns';
 
+/** @param {NS} ns */
 export function main(ns: NS) {
     const fullPlayer = ns.getPlayer();
     const limitedPlayer = {

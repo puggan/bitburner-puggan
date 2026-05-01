@@ -1,13 +1,17 @@
 import type {NS} from '@ns';
 
+/**
+ * @param {NS} ns
+ * @param {number} pid
+ */
 async function waitForPid(ns: NS, pid: number) {
     while (ns.isRunning(pid)) {
         await ns.sleep(100);
     }
 }
 
-export async function runAll(ns: NS)
-{
+/** @param {NS} ns */
+export async function runAll(ns: NS) {
     const scripts = [
         '/data/generate/player.js',
         '/data/generate/portTools.js',
@@ -26,7 +30,7 @@ export async function runAll(ns: NS)
     }
 }
 
-export async function main(ns: NS)
-{
+/** @param {NS} ns */
+export async function main(ns: NS) {
     await runAll(ns);
 }

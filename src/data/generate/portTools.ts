@@ -3,6 +3,7 @@ import type {NS} from '@ns';
 export type ToolNames = "BruteSSH" | "FTPCrack" | "relaySMTP" | "HTTPWorm" | "SQLInject";
 export type ToolList = Record<ToolNames, boolean>;
 
+/** @param {NS} ns */
 export function main(ns: NS) {
     const portTools: ToolList = {
         BruteSSH: ns.fileExists("BruteSSH.exe", "home"),

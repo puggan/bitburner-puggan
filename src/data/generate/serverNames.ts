@@ -1,5 +1,6 @@
 import type {NS} from '@ns';
 
+/** @param {NS} ns */
 export function main(ns: NS) {
     const serverNames: Set<string> = new Set(['home']);
     const todo: string[] = [...serverNames];

@@ -1,6 +1,7 @@
 import type {NS, Server} from '@ns';
 import serverNames from '/data/get/serverNames.js';
 
+/** @param {NS} ns */
 export function main(ns: NS) {
     const servers: { [serverName: string]: Server } = {};
     for (const serverName of serverNames(ns)) {
