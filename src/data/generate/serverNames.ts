@@ -3,8 +3,11 @@ import type {NS} from '@ns';
 /** @param {NS} ns */
 export function main(ns: NS) {
     const serverNames: Set<string> = new Set(['home']);
-    const serverNeighbors: Record<string, string[]> = {};
     const todo: string[] = [...serverNames];
+    const serverNeighbors: Record<string, string[]> = {};
+    const serverPaths: Record<string, string[]> = {
+        home: [],
+    };
     while (todo.length > 0) {
         const nextServer = todo.shift();
         if (!nextServer) continue;
@@ -16,8 +19,10 @@ export function main(ns: NS) {
             }
             todo.push(serverName);
             serverNames.add(serverName);
+            serverPaths[serverName] = [...serverPaths[nextServer], serverName];
         }
     }
     ns.write('data/serverNames.txt', [...serverNames].sort().join("\n"), 'w');
     ns.write('data/serverNeighbors.json.txt', JSON.stringify(serverNeighbors, null, 2), 'w');
+    ns.write('data/serverPaths.json.txt', JSON.stringify(serverPaths, null, 2), 'w');
 }
