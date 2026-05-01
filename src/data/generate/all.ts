@@ -10,6 +10,7 @@ export async function runAll(ns: NS)
 {
     const scripts = [
         '/data/generate/player.js',
+        '/data/generate/portTools.js',
         '/data/generate/serverNames.js',
         '/data/generate/servers.js',
     ];
