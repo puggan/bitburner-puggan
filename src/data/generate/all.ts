@@ -10,14 +10,11 @@ async function waitForPid(ns: NS, pid: number) {
     }
 }
 
-/** @param {NS} ns */
-export async function runAll(ns: NS) {
-    const scripts = [
-        '/data/generate/player.js',
-        '/data/generate/portTools.js',
-        '/data/generate/serverNames.js',
-        '/data/generate/servers.js',
-    ];
+/**
+ * @param {NS} ns
+ * @param {string[]} scripts
+ */
+export async function runList(ns: NS, scripts: string[]) {
     for (const script of scripts) {
         const pid = ns.run(script, {threads: 1, preventDuplicates: true});
 
@@ -28,6 +25,22 @@ export async function runAll(ns: NS) {
 
         await waitForPid(ns, pid);
     }
+}
+
+/** @param {NS} ns */
+export async function runAll(ns: NS) {
+    const scripts = [
+        '/data/generate/player.js',
+        '/data/generate/portTools.js',
+        '/data/generate/serverNames.js',
+        '/data/generate/servers.js',
+    ];
+    await runList(ns, scripts);
+}
+
+/** @param {NS} ns */
+export async function runPlayer(ns: NS) {
+    await runList(ns, ['/data/generate/player.js']);
 }
 
 /** @param {NS} ns */
